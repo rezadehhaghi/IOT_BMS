@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 Live Sensor Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            text-align: center;
+            padding: 50px;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: inline-block;
+            min-width: 250px;
+        }
+        .value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #2ecc71;
+            margin: 20px 0;
+        }
+        .status {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>ESP32 Sensor Reading</h2>
+        <!-- The live value replaces this text -->
+        <div class="value" id="sensor-data">Loading...</div>
+        <div class="status" id="timestamp">Updating...</div>
+    </div>
+
+    <script>
+        // ⚠️ REPLACE THESE WITH YOUR ACTUAL THINGSPEAK DETAILS
+        const CHANNEL_ID = "YOUR_THINGSPEAK_CHANNEL_ID"; 
+        const READ_API_KEY = "YOUR_THINGSPEAK_READ_API_KEY"; 
+        
+        const url = `https://thingspeak.com{CHANNEL_ID}/feeds/last.json?api_key=${READ_API_KEY}`;
+
+        async function getLiveValue() {
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                // Extract the value from field1 and the time it was received
+                const sensorValue = data.field1;
+                const rawTime = new Date(data.created_at);
+                const formattedTime = rawTime.toLocaleTimeString();
+
+                // Update the website text dynamically
+                document.getElementById('sensor-data').innerText = sensorValue;
+                document.getElementById('timestamp').innerText = `Last updated at: ${formattedTime}`;
+            } catch (error) {
+                console.error("Failed to fetch data:", error);
+                document.getElementById('sensor-data').innerText = "--";
+                document.getElementById('timestamp').innerText = "Connection Error";
+            }
+        }
+
+        // Fetch data immediately when the page loads
+        getLiveValue();
+
+        // Refresh the data every 15 seconds to match ESP32 upload rate
+        setInterval(getLiveValue, 15000);
+    </script>
+</body>
+</html>
