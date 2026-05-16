@@ -46,60 +46,42 @@
 
     <div class="card">
         <h2>ESP32 Sensor Reading</h2>
-        <!-- The live value will replace this text -->
         <div class="value" id="sensor-data">Loading...</div>
         <div class="status" id="timestamp">Connecting to server...</div>
     </div>
 
     <script>
-        // 🔒 SECURITY CHECK: Paste your Read API Key here if your channel is Private.
-        // If your channel is explicitly set to Public, you can leave this blank "".
-        const READ_API_KEY = "YOUR_THINGSPEAK_READ_API_KEY"; 
-        
-        // Base API Address provided by ThingSpeak for Channel 3386022
-        let url = "https://thingspeak.com";
-
-        // Automatically append the Read API Key to authenticate the request if provided
-        if (READ_API_KEY !== "" && READ_API_KEY !== "YOUR_THINGSPEAK_READ_API_KEY") {
-            url += `&api_key=${READ_API_KEY}`;
-        }
+        // ⚠️ REPLACE THIS ENTIRE STRING WITH YOUR WORKING READ LINK IF YOUR CHANNEL IS PRIVATE
+        // Example: "https://thingspeak.com"
+        const straightforwardUrl = "https://api.thingspeak.com/channels/3386022/fields/1.json?results=2";
 
         async function getLiveValue() {
             try {
-                const response = await fetch(url);
+                const response = await fetch(straightforwardUrl);
                 const data = await response.json();
                 
-                // Extract the array of feeds from the JSON payload
+                // Read from the feeds list inside your exact URL JSON output
                 const feeds = data.feeds;
-                
-                // Select the most recent feed item at the end of the array
                 const latestFeed = feeds[feeds.length - 1];
                 
-                // Extract individual data properties
                 const sensorValue = latestFeed.field1;
                 const rawTime = new Date(latestFeed.created_at);
                 const formattedTime = rawTime.toLocaleTimeString();
 
-                // Check for valid data before updating UI
-                if (sensorValue !== null && sensorValue !== undefined) {
-                    document.getElementById('sensor-data').innerText = sensorValue;
-                    document.getElementById('timestamp').innerText = `Last updated at: ${formattedTime}`;
-                } else {
-                    document.getElementById('sensor-data').innerText = "Empty";
-                    document.getElementById('timestamp').innerText = "No recent data in field";
-                }
+                document.getElementById('sensor-data').innerText = sensorValue;
+                document.getElementById('timestamp').innerText = `Last updated at: ${formattedTime}`;
                 
             } catch (error) {
-                console.error("Failed to fetch data:", error);
+                console.error("Error:", error);
                 document.getElementById('sensor-data').innerText = "--";
                 document.getElementById('timestamp').innerText = "Connection Error";
             }
         }
 
-        // Run data lookup immediately when the page finishes loading
+        // Fetch immediately on load
         getLiveValue();
 
-        // Refresh the page data every 15 seconds to sync with ThingSpeak
+        // Refresh every 15 seconds
         setInterval(getLiveValue, 15000);
     </script>
 </body>
