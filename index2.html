@@ -20,7 +20,6 @@
             display: inline-block;
             min-width: 280px;
             border-top: 5px solid #2ecc71;
-            margin: 10px;
         }
         h2 {
             color: #2c3e50;
@@ -45,23 +44,16 @@
 </head>
 <body>
 
-    <!-- Temperature Block (Field 1) -->
     <div class="card">
-        <h2>Temperature</h2>
+        <h2>ESP32 Sensor Reading</h2>
         <div class="value" id="sensor-data">Loading...</div>
         <div class="status" id="timestamp">Connecting to server...</div>
     </div>
 
-    <!-- Humidity Block (Field 2) -->
-    <div class="card" style="border-top: 5px solid #3498db;">
-        <h2>Humidity</h2>
-        <div class="value" id="humidity-data" style="color: #3498db;">Loading...</div>
-        <div class="status" id="humidity-timestamp">Connecting to server...</div>
-    </div>
-
     <script>
-        // Using your exact Channel Feed URL to fetch all active data fields at once
-        const straightforwardUrl = "https://api.thingspeak.com/channels/3386022/feeds.json?results=2";
+        // ⚠️ REPLACE THIS ENTIRE STRING WITH YOUR WORKING READ LINK IF YOUR CHANNEL IS PRIVATE
+        // Example: "https://thingspeak.com"
+        const straightforwardUrl = "https://api.thingspeak.com/channels/3386022/fields/1.json?results=2";
 
         async function getLiveValue() {
             try {
@@ -72,34 +64,17 @@
                 const feeds = data.feeds;
                 const latestFeed = feeds[feeds.length - 1];
                 
-                // Extract general response time
+                const sensorValue = latestFeed.field1;
                 const rawTime = new Date(latestFeed.created_at);
                 const formattedTime = rawTime.toLocaleTimeString();
 
-                // Process Field 1 (Temperature)
-                const sensorValue = latestFeed.field1;
-                if (sensorValue !== null && sensorValue !== undefined) {
-                    document.getElementById('sensor-data').innerText = sensorValue;
-                } else {
-                    document.getElementById('sensor-data').innerText = "--";
-                }
+                document.getElementById('sensor-data').innerText = sensorValue;
                 document.getElementById('timestamp').innerText = `Last updated at: ${formattedTime}`;
-                
-                // Process Field 2 (Humidity)
-                const humidityValue = latestFeed.field2;
-                if (humidityValue !== null && humidityValue !== undefined) {
-                    document.getElementById('humidity-data').innerText = humidityValue;
-                } else {
-                    document.getElementById('humidity-data').innerText = "--";
-                }
-                document.getElementById('humidity-timestamp').innerText = `Last updated at: ${formattedTime}`;
                 
             } catch (error) {
                 console.error("Error:", error);
                 document.getElementById('sensor-data').innerText = "--";
                 document.getElementById('timestamp').innerText = "Connection Error";
-                document.getElementById('humidity-data').innerText = "--";
-                document.getElementById('humidity-timestamp').innerText = "Connection Error";
             }
         }
 
