@@ -10,24 +10,35 @@
             background-color: #f4f7f6;
             text-align: center;
             padding: 50px;
+            margin: 0;
         }
         .card {
             background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
             display: inline-block;
-            min-width: 250px;
+            min-width: 280px;
+            border-top: 5px solid #2ecc71;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 1.5rem;
         }
         .value {
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: bold;
             color: #2ecc71;
             margin: 20px 0;
         }
         .status {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #7f8c8d;
+            background: #edeae680;
+            padding: 8px 12px;
+            border-radius: 20px;
+            display: inline-block;
         }
     </style>
 </head>
@@ -35,34 +46,49 @@
 
     <div class="card">
         <h2>ESP32 Sensor Reading</h2>
-        <!-- The live value replaces this text -->
+        <!-- The live value will replace this text -->
         <div class="value" id="sensor-data">Loading...</div>
-        <div class="status" id="timestamp">Updating...</div>
+        <div class="status" id="timestamp">Connecting to server...</div>
     </div>
 
     <script>
-        // ⚠️ REPLACE THESE WITH YOUR ACTUAL THINGSPEAK DETAILS
-        const CHANNEL_ID = "3386022"; // OK
-        const READ_API_KEY = "YTQVOZ3SCW5R300V"; 
+        // 🔒 SECURITY CHECK: Paste your Read API Key here if your channel is Private.
+        // If your channel is explicitly set to Public, you can leave this blank "".
+        const READ_API_KEY = "YOUR_THINGSPEAK_READ_API_KEY"; 
         
-        const url = `https://api.thingspeak.com/channels/3386022/fields/1.json?results=2`;
-        
-            // https://api.thingspeak.com/channels/3386022/fields/last.json?results=2
-            // https://api.thingspeak.com/channels/3386022/feeds.json?results=2
-            //https://thingspeak.com{CHANNEL_ID}/feeds/last.json?api_key=${READ_API_KEY}
+        // Base API Address provided by ThingSpeak for Channel 3386022
+        let url = "https://thingspeak.com";
+
+        // Automatically append the Read API Key to authenticate the request if provided
+        if (READ_API_KEY !== "" && READ_API_KEY !== "YOUR_THINGSPEAK_READ_API_KEY") {
+            url += `&api_key=${READ_API_KEY}`;
+        }
+
         async function getLiveValue() {
             try {
                 const response = await fetch(url);
                 const data = await response.json();
                 
-                // Extract the value from field1 and the time it was received
-                const sensorValue = data.field1;
-                const rawTime = new Date(data.created_at);
+                // Extract the array of feeds from the JSON payload
+                const feeds = data.feeds;
+                
+                // Select the most recent feed item at the end of the array
+                const latestFeed = feeds[feeds.length - 1];
+                
+                // Extract individual data properties
+                const sensorValue = latestFeed.field1;
+                const rawTime = new Date(latestFeed.created_at);
                 const formattedTime = rawTime.toLocaleTimeString();
 
-                // Update the website text dynamically
-                document.getElementById('sensor-data').innerText = sensorValue;
-                document.getElementById('timestamp').innerText = `Last updated at: ${formattedTime}`;
+                // Check for valid data before updating UI
+                if (sensorValue !== null && sensorValue !== undefined) {
+                    document.getElementById('sensor-data').innerText = sensorValue;
+                    document.getElementById('timestamp').innerText = `Last updated at: ${formattedTime}`;
+                } else {
+                    document.getElementById('sensor-data').innerText = "Empty";
+                    document.getElementById('timestamp').innerText = "No recent data in field";
+                }
+                
             } catch (error) {
                 console.error("Failed to fetch data:", error);
                 document.getElementById('sensor-data').innerText = "--";
@@ -70,10 +96,10 @@
             }
         }
 
-        // Fetch data immediately when the page loads
+        // Run data lookup immediately when the page finishes loading
         getLiveValue();
 
-        // Refresh the data every 15 seconds to match ESP32 upload rate
+        // Refresh the page data every 15 seconds to sync with ThingSpeak
         setInterval(getLiveValue, 15000);
     </script>
 </body>
