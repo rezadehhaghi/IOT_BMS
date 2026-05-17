@@ -41,9 +41,10 @@
             border-radius: 20px;
             display: inline-block;
         }
-        /* Style for the new button */
+        /* Style for the button link */
         .graph-btn {
-            display: block;
+            display: inline-block;
+            text-decoration: none;
             margin: 30px auto 0 auto;
             padding: 12px 24px;
             font-size: 1rem;
@@ -54,6 +55,9 @@
             border-radius: 8px;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .graph-btn:hover {
+            background-color: #34495e;
         }
     </style>
 </head>
@@ -73,12 +77,14 @@
         <div class="status" id="humidity-timestamp">Connecting to server...</div>
     </div>
 
-    <!-- Added button element -->
-    <button class="graph-btn">bar graph</button>
+    <!-- Button targeting Bars folder relative to your main root address -->
+    <div>
+        <a href="./Bars/" class="graph-btn">bar graph</a>
+    </div>
 
     <script>
         // Using your exact Channel Feed URL to fetch all active data fields at once
-        const straightforwardUrl = "https://thingspeak.com";
+        const straightforwardUrl = "https://api.thingspeak.com/channels/3386022/feeds.json?results=2";
 
         async function getLiveValue() {
             try {
