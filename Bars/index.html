@@ -3,45 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sensor Analytics - Bar Graphs</title>
+    <title>Sensor Analytics - Charts</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f7f6;
             text-align: center;
-            padding: 50px;
+            padding: 40px 20px;
             margin: 0;
         }
-        .container {
+        h1 { 
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .charts-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .chart-card {
             background: white;
-            padding: 40px;
+            padding: 20px;
             border-radius: 20px;
             box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            display: inline-block;
-            min-width: 320px;
+            flex: 1;
+            min-width: 300px;
+            max-width: 470px;
         }
-        h1 { color: #2c3e50; }
+        iframe {
+            border: 1px solid #cccccc;
+            border-radius: 10px;
+            width: 100%;
+            height: 260px;
+        }
         .back-btn {
             display: inline-block;
             text-decoration: none;
-            margin-top: 30px;
-            padding: 10px 20px;
+            margin-top: 40px;
+            padding: 12px 24px;
             font-size: 0.9rem;
+            font-weight: bold;
             color: #7f8c8d;
             background-color: #edeae6;
             border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .back-btn:hover {
+            background-color: #e2ded9;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Sensor Bar Graphs</h1>
-        <p>This page will render historical sensor data logs.</p>
-        
-        <!-- Button linking back to your main menu -->
-        <a href="../" class="back-btn">← Back to Dashboard</a>
+    <h1>Sensor History Charts</h1>
+    
+    <div class="charts-container">
+        <!-- Temperature Chart (Field 1) -->
+        <div class="chart-card">
+            <!-- ⚠️ REPLACE THE src LINK BELOW WITH YOUR TEMPERATURE EMBED LINK -->
+            <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/3386022/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15"></iframe>
+
+        </div>
+
+        <!-- Humidity Chart (Field 2) -->
+        <div class="chart-card">
+            <!-- ⚠️ REPLACE THE src LINK BELOW WITH YOUR HUMIDITY EMBED LINK -->
+            <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/3386022/charts/2?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15"></iframe>
+
+        </div>
     </div>
+    
+    <!-- Button linking back to your main menu -->
+    <a href="../" class="back-btn">← Back to Live Dashboard</a>
 
 </body>
 </html>
