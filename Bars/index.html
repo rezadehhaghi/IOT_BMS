@@ -1,44 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
     <title>Sensor Analytics - Charts</title>
+
     <style>
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI',
+                         Tahoma,
+                         Geneva,
+                         Verdana,
+                         sans-serif;
+
             background-color: #f4f7f6;
             text-align: center;
             padding: 40px 20px;
             margin: 0;
         }
-        h1 { 
+
+        h1 {
             color: #2c3e50;
             margin-bottom: 30px;
         }
+
         .charts-container {
             display: flex;
             justify-content: center;
             gap: 20px;
             flex-wrap: wrap;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
+
         .chart-card {
             background: white;
             padding: 20px;
             border-radius: 20px;
             box-shadow: 0 10px 20px rgba(0,0,0,0.05);
             flex: 1;
-            min-width: 300px;
-            max-width: 470px;
+            min-width: 320px;
+            max-width: 420px;
         }
+
         iframe {
             border: 1px solid #cccccc;
             border-radius: 10px;
             width: 100%;
             height: 260px;
         }
+
+        .grafana-card {
+            width: 100%;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            margin-top: 20px;
+        }
+
         .back-btn {
             display: inline-block;
             text-decoration: none;
@@ -51,48 +75,101 @@
             border-radius: 8px;
             transition: background 0.2s;
         }
+
         .back-btn:hover {
             background-color: #e2ded9;
         }
+
     </style>
 </head>
+
 <body>
 
     <h1>Sensor History Charts</h1>
-    
+
     <div class="charts-container">
-        <!-- Temperature Chart (Field 1) -->
+
+        <!-- ===================================================== -->
+        <!-- Temperature Chart -->
+        <!-- ===================================================== -->
+
         <div class="chart-card">
-            <!-- ⚠️ REPLACE THE src LINK BELOW WITH YOUR TEMPERATURE EMBED LINK -->
-            <iframe width="350" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.mathworks.com/channels/3386022/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&max=50&min=0&results=1440&timescale=10&title=Temperature%C2%B0C&type=spline&yaxismax=50&yaxismin=0"></iframe>
+
+            <h3>Temperature</h3>
+
+            <iframe
+                src="https://thingspeak.mathworks.com/channels/3386022/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=1440&timescale=10&title=Temperature%C2%B0C&type=spline&yaxismax=50&yaxismin=0">
+            </iframe>
 
         </div>
-        <!-- Humidity Chart (Field 2) -->
+
+        <!-- ===================================================== -->
+        <!-- Humidity Chart -->
+        <!-- ===================================================== -->
+
         <div class="chart-card">
-            <!-- ⚠️ REPLACE THE src LINK BELOW WITH YOUR HUMIDITY EMBED LINK -->
-            <iframe width="350" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.mathworks.com/channels/3386022/charts/2?bgcolor=%23ffffff&color=%23d62020&dynamic=true&max=100&min=0&results=1440&timescale=10&title=Humidity%25&type=spline&yaxismax=100&yaxismin=0"></iframe>
+
+            <h3>Humidity</h3>
+
+            <iframe
+                src="https://thingspeak.mathworks.com/channels/3386022/charts/2?bgcolor=%23ffffff&color=%232980b9&dynamic=true&results=1440&timescale=10&title=Humidity%25&type=spline&yaxismax=100&yaxismin=0">
+            </iframe>
+
         </div>
-        <!-- Pressure Chart (Field 3) -->
+
+        <!-- ===================================================== -->
+        <!-- Pressure Chart -->
+        <!-- ===================================================== -->
+
         <div class="chart-card">
-            <!-- ⚠️ REPLACE THE src LINK BELOW WITH YOUR HUMIDITY EMBED LINK -->
-            <iframe width="350" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.mathworks.com/channels/3386022/charts/2?bgcolor=%23ffffff&color=%23d62020&dynamic=true&max=100&min=0&results=1440&timescale=10&title=Pressure%25&type=spline&yaxismax=100&yaxismin=0"></iframe>
+
+            <h3>Pressure</h3>
+
+            <iframe
+                src="https://thingspeak.mathworks.com/channels/3386022/charts/3?bgcolor=%23ffffff&color=%23e67e22&dynamic=true&results=1440&timescale=10&title=Pressure+hPa&type=spline&yaxismax=1100&yaxismin=900">
+            </iframe>
+
         </div>
-        
-        <!-- Grafana Chart (Field 2) -->
-        <div style="width: 100%; max-width: 800px; margin: 0 auto; text-align: center;">
+
+        <!-- ===================================================== -->
+        <!-- Grafana Dashboard -->
+        <!-- ===================================================== -->
+
+        <div class="grafana-card">
+
             <h3>Live Weather Station Metrics</h3>
-            <object 
-            data="https://rezadehhaghi.grafana.net/public-dashboards/dfaecb5d0c154b94add9ce7e59b20305?from=now-6h&to=now&timezone=browser&kiosk=1" 
-            width="100%" 
-            height="500" 
-            type="text/html">
-            <p>Your browser cannot render this embed. <a href="https://rezadehhaghi.grafana.net/public-dashboards/dfaecb5d0c154b94add9ce7e59b20305" target="_blank">Click here to view the live data</a>.</p>
-        </object>
+
+            <object
+                data="https://rezadehhaghi.grafana.net/public-dashboards/dfaecb5d0c154b94add9ce7e59b20305?from=now-6h&to=now&timezone=browser&kiosk=1"
+                width="100%"
+                height="600"
+                type="text/html">
+
+                <p>
+                    Your browser cannot render this embed.
+
+                    <a href="https://rezadehhaghi.grafana.net/public-dashboards/dfaecb5d0c154b94add9ce7e59b20305"
+                       target="_blank">
+
+                        Open Grafana Dashboard
+
+                    </a>
+                </p>
+
+            </object>
+
         </div>
+
     </div>
-    
-    <!-- Button linking back to your main menu -->
-    <a href="../" class="back-btn">← Back to Live Dashboard</a>
+
+    <!-- ===================================================== -->
+    <!-- Back Button -->
+    <!-- ===================================================== -->
+
+    <a href="../" class="back-btn">
+        ← Back to Live Dashboard
+    </a>
 
 </body>
+
 </html>
