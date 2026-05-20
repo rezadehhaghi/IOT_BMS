@@ -1,0 +1,249 @@
+
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <Wire.h>
+
+#include <Adafruit_AHTX0.h>
+#include <Adafruit_BMP280.h>
+
+#include "secrets.h"
+
+// ============================================================
+// SENSOR OBJECTS
+// ============================================================
+
+Adafruit_AHTX0 aht;
+Adafruit_BMP280 bmp;
+
+// ============================================================
+// I2C PINS
+// ============================================================
+
+#define SDA_PIN 8
+#define SCL_PIN 9
+
+// ============================================================
+// WIFI CONNECTION
+// ============================================================
+
+void connectWiFi() {
+
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+  Serial.print("Connecting to WiFi");
+
+  int retries = 0;
+
+  while (WiFi.status() != WL_CONNECTED && retries < 30) {
+    delay(500);
+    Serial.print(".");
+    retries++;
+  }
+
+  Serial.println();
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("WiFi connected!");
+    Serial.print("IP Address: ");
+    Serial.println(WiFi.localIP());
+  }
+
+  else {
+    Serial.println("WiFi connection failed!");
+  }
+}
+
+// ============================================================
+// SENSOR INITIALIZATION
+// ============================================================
+
+void initializeSensors() {
+
+  Wire.begin(SDA_PIN, SCL_PIN);
+
+  Serial.println("Initializing sensors...");
+
+  // AHT20
+  if (!aht.begin()) {
+    Serial.println("ERROR: AHT20 not detected!");
+    while (true);
+  }
+
+  Serial.println("AHT20 initialized");
+
+  // BMP280
+  if (!bmp.begin(0x77)) {
+    Serial.println("ERROR: BMP280 not detected!");
+    while (true);
+  }
+
+  Serial.println("BMP280 initialized");
+}
+
+// ============================================================
+// THINGSPEAK
+// ============================================================
+
+void sendToThingSpeak(
+  float temperature,
+  float humidity,
+  float pressure
+) {
+
+  HTTPClient http;
+
+  String url =
+    "https://api.thingspeak.com/update?api_key=" +
+    String(THINGSPEAK_API_KEY) +
+    "&field1=" + String(temperature, 2) +
+    "&field2=" + String(humidity, 2) +
+    "&field3=" + String(pressure, 2);
+
+  http.begin(url);
+
+  int responseCode = http.GET();
+
+  Serial.print("ThingSpeak Response Code: ");
+  Serial.println(responseCode);
+
+  if (responseCode > 0) {
+    Serial.print("ThingSpeak Response: ");
+    Serial.println(http.getString());
+  }
+
+  else {
+    Serial.println("ThingSpeak request failed");
+  }
+
+  http.end();
+}
+
+// ============================================================
+// INFLUXDB
+// ============================================================
+
+void sendToInfluxDB(
+  float temperature,
+  float humidity,
+  float pressure
+) {
+
+  HTTPClient http;
+
+  String data =
+    "weather_metrics,device=esp32 "
+    "temperature=" + String(temperature, 2) +
+    ",humidity=" + String(humidity, 2) +
+    ",pressure=" + String(pressure, 2);
+
+  http.begin(INFLUX_URL);
+
+  http.addHeader(
+    "Authorization",
+    "Token " + String(INFLUX_TOKEN)
+  );
+
+  http.addHeader(
+    "Content-Type",
+    "text/plain"
+  );
+
+  int responseCode = http.POST(data);
+
+  Serial.print("InfluxDB Response Code: ");
+  Serial.println(responseCode);
+
+  if (responseCode > 0) {
+    Serial.print("InfluxDB Response: ");
+    Serial.println(http.getString());
+  }
+
+  else {
+    Serial.println("InfluxDB request failed");
+  }
+
+  http.end();
+}
+
+// ============================================================
+// SETUP
+// ============================================================
+
+void setup() {
+
+  Serial.begin(115200);
+
+  delay(2000);
+
+  Serial.println();
+  Serial.println("=================================");
+  Serial.println("Reziot Environmental Monitor");
+  Serial.println("=================================");
+
+  initializeSensors();
+
+  connectWiFi();
+}
+
+// ============================================================
+// LOOP
+// ============================================================
+
+void loop() {
+
+  // Reconnect WiFi if disconnected
+  if (WiFi.status() != WL_CONNECTED) {
+
+    Serial.println("WiFi disconnected. Reconnecting...");
+
+    connectWiFi();
+  }
+
+  // Read sensors
+  sensors_event_t humidityEvent;
+  sensors_event_t tempEvent;
+
+  aht.getEvent(&humidityEvent, &tempEvent);
+
+  float temperature = tempEvent.temperature;
+  float humidity = humidityEvent.relative_humidity;
+  float pressure = bmp.readPressure() / 100.0F;
+
+  // Serial Monitor Output
+  Serial.println("---------------------------------");
+
+  Serial.print("Temperature: ");
+  Serial.print(temperature);
+  Serial.println(" °C");
+
+  Serial.print("Humidity: ");
+  Serial.print(humidity);
+  Serial.println(" %");
+
+  Serial.print("Pressure: ");
+  Serial.print(pressure);
+  Serial.println(" hPa");
+
+  // Send data if connected
+  if (WiFi.status() == WL_CONNECTED) {
+
+    sendToThingSpeak(
+      temperature,
+      humidity,
+      pressure
+    );
+
+    sendToInfluxDB(
+      temperature,
+      humidity,
+      pressure
+    );
+  }
+
+  else {
+    Serial.println("Skipping upload: No WiFi");
+  }
+
+  // Upload every 60 seconds
+  delay(60000);
+}
